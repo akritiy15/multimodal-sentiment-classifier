@@ -1,0 +1,18 @@
+{
+  "model": "Fine-tuned BERT + LoRA + Cross-modal Fusion",
+  "test_samples": 2000,
+  "metrics": {
+    "accuracy": 0.916,
+    "precision_weighted": 0.9158,
+    "recall_weighted": 0.916,
+    "f1_weighted": 0.9158,
+    "f1_macro": 0.8743,
+    "auc_weighted": 0.9929
+  },
+  "baseline_comparison": {
+    "zero_shot_f1": 0.549,
+    "few_shot_f1": 0.539,
+    "fine_tuned_f1": 0.9158,
+    "improvement_over_zero_shot": 66.8
+  }
+}
