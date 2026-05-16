@@ -46,6 +46,7 @@ model.eval()
 
 dataset = load_dataset("dair-ai/emotion")
 
+# Full evaluation: precision, recall, F1, AUC, confusion matrix
 def tokenize_fn(examples):
     return tokenizer(examples["text"], padding=False,
                      truncation=True, max_length=128)
