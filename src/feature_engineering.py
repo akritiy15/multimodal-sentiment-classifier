@@ -32,6 +32,7 @@ FEATURE_NAMES = [
 ]
 
 
+# Scaler fitted on train only to prevent data leakage
 def extract_features(text: str) -> np.ndarray:
     """Extract 10 structured features from a raw text string."""
     words = text.split()
