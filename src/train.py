@@ -68,6 +68,7 @@ scheduler = get_linear_schedule_with_warmup(
 loss_fn = torch.nn.CrossEntropyLoss()
 
 # ── Train + Eval functions ────────────────────────────────
+# Warmup scheduler + gradient clipping for stable LoRA training
 def train_epoch(epoch):
     model.train()
     total_loss, all_preds, all_labels = 0, [], []
