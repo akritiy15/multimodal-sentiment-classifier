@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emotion Classifier</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 0 20px;
+    background: #fff;
+    color: #222;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  p.sub {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 80px;
+    font-family: Arial, sans-serif;
+  }
+
+  button {
+    margin-top: 10px;
+    padding: 8px 20px;
+    font-size: 14px;
+    background: #fff;
+    border: 1px solid #999;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .result {
+    margin-top: 24px;
+  }
+
+  .prediction-label {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0;
+  }
+
+  .bar-label {
+    width: 75px;
+    font-size: 13px;
+    color: #444;
+    text-align: right;
+  }
+
+  .bar-bg {
+    flex: 1;
+    background: #eee;
+    height: 16px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: #555;
+    border-radius: 2px;
+  }
+
+  .bar-val {
+    width: 40px;
+    font-size: 12px;
+    color: #666;
+  }
+
+  .error {
+    color: red;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<h2>Emotion Classifier</h2>
+<p class="sub">Fine-tuned BERT + LoRA — 91.6% accuracy on 6 emotion classes</p>
+
+<textarea id="input" placeholder="Type a sentence and press Classify..."></textarea>
+<br>
+<button onclick="classify()">Classify</button>
+<div id="error" class="error"></div>
+
+<div id="result" class="result" style="display:none">
+  <div id="prediction" class="prediction-label"></div>
+  <div id="bars"></div>
+</div>
+
+<script>
+const EMOJIS = {
+  sadness: "😢",
+  joy: "😄",
+  love: "❤️",
+  anger: "😠",
+  fear: "😨",
+  surprise: "😲"
+};
+
+async function classify() {
+  const text = document.getElementById("input").value.trim();
+  const errorDiv = document.getElementById("error");
+  const resultDiv = document.getElementById("result");
+
+  errorDiv.textContent = "";
+  resultDiv.style.display = "none";
+
+  if (!text) {
+    errorDiv.textContent = "Please enter a sentence.";
+    return;
+  }
+
+  const btn = document.querySelector("button");
+  btn.textContent = "Loading...";
+  btn.disabled = true;
+
+  try {
+    const resp = await fetch("http://localhost:8000/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+
+    if (!resp.ok) throw new Error("Server error");
+    const data = await resp.json();
+
+    const emoji = EMOJIS[data.prediction] || "";
+    document.getElementById("prediction").textContent =
+      emoji + " " + data.prediction + " (" + (data.confidence * 100).toFixed(1) + "%)";
+
+    const sorted = Object.entries(data.scores).sort((a, b) => b[1] - a[1]);
+    document.getElementById("bars").innerHTML = sorted.map(([label, prob]) => `
+      <div class="bar-row">
+        <div class="bar-label">${label}</div>
+        <div class="bar-bg">
+          <div class="bar-fill" style="width:${(prob * 100).toFixed(1)}%"></div>
+        </div>
+        <div class="bar-val">${(prob * 100).toFixed(1)}%</div>
+      </div>
+    `).join("");
+
+    resultDiv.style.display = "block";
+
+  } catch (e) {
+    errorDiv.textContent = "Could not connect. Make sure the API server is running.";
+  }
+
+  btn.textContent = "Classify";
+  btn.disabled = false;
+}
+
+document.getElementById("input").addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    classify();
+  }
+});
+</script>
+
+</body>
+</html>
