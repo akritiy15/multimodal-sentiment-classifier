@@ -3,6 +3,7 @@ import torch.nn as nn
 from transformers import AutoModel
 from peft import get_peft_model, LoraConfig, TaskType
 
+# Cross-modal fusion: BERT embeddings + structured features
 class MultimodalSentimentModel(nn.Module):
     def __init__(
         self,
