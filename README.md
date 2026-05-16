@@ -81,3 +81,6 @@ python src/evaluate.py               # generate metrics + charts
 - **Cross-modal fusion** — concatenating structured signals with BERT 
   embeddings improves robustness on underrepresented classes
 - **Scaler fitted on train only** — prevents data leakage from val/test sets
+
+## Dataset
+[dair-ai/emotion](https://huggingface.co/datasets/dair-ai/emotion) — 20,000 English Twitter messages labelled with 6 emotions (sadness, joy, love, anger, fear, surprise). Loaded via HuggingFace datasets library.
